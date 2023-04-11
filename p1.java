@@ -107,6 +107,6 @@ public class p1{
         }
         //cnm1.insertInitialValues("citizen");
         //cnm1.insertInitialValues("locations");
-        cnm1.insertInitialValues("bank");
+        //cnm1.insertInitialValues("bank");
     }
 }
