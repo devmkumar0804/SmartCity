@@ -67,6 +67,31 @@ class ConnectionManager{
                 e.printStackTrace();
             }
         }
+        else if(tableName.equalsIgnoreCase("bank")){
+            try {
+                Statement s1;
+                s1 = conn.createStatement();
+                String[][] bankValues = {{"BT1","1","20000"},
+                                        {"BT2","2","10000"},
+                                        {"BT3","3","30000"},
+                                        {"BT4","4","40000"},
+                                        {"BT5","5","50000"}};
+                                                    
+                for(String[] a : bankValues){
+                    String bank_id = a[0];
+                    String citizen_id = a[1];
+                    String amount = a[2];
+                    r1=s1.executeUpdate("insert into bank values("+"\""+bank_id+"\""+","+"\""+citizen_id+"\""+","+amount+")");
+                }
+                System.out.println("inserted succesfully into bank table");
+                s1.close();
+            } 
+            catch (SQLException e) {
+                // TODO Auto-generated catch block
+                System.out.println(e);
+                e.printStackTrace();
+            }
+        }
     }
 }
 
@@ -80,7 +105,8 @@ public class p1{
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        cnm1.insertInitialValues("citizen");
-        cnm1.insertInitialValues("locations");
+        //cnm1.insertInitialValues("citizen");
+        //cnm1.insertInitialValues("locations");
+        cnm1.insertInitialValues("bank");
     }
 }
