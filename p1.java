@@ -1,26 +1,71 @@
+import java.lang.Thread.State;
 import java.sql.*;
 
-class SqlExtract{
+class ConnectionManager{
+    public Connection conn=null;
+    Statement s1;
+    int r1;
+    public void initiate() throws ClassNotFoundException, SQLException{
+        Class.forName("com.mysql.jdbc.Driver"); 
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/smartcity","root","Fllbcksql");
+        s1 = conn.createStatement();
+    }
     
-    public void initiate(){
-        Connection conn = null;
-
-        try{
-            Class.forName("com.mysql.jdbc.Driver"); 
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/creditspace","root","Fllbcksql");
-            Statement s1 ;
-            s1 = conn.createStatement();
-            ResultSet r1;
-            r1 = s1.executeQuery("select * from user");
-            while(r1.next()){
-                System.out.println(r1.getString("name"));
+    
+    public void insertInitialValues(String tableName){
+        if(tableName.equalsIgnoreCase("citizen")){
+            
+            try {
+                
+                
+                String[][] citizenValues = {{"Dev M Kumar","dev@gmail.com","123456789","1","Resident","BT1"},
+                                            {"Gokul Krishnan","gokul@gmail.com","234567891","2","Resident","BT2"},
+                                            {"KV Dhruthi Rao","dhruthi@gmail.com","234567231","3","Resident","BT3"},
+                                            {"Gayatri Prabhala","gayatri@gmail.com","234521891","4","Resident","BT4"},
+                                            {"Darth Vader","dvader@gmail.com","345666123","5","Tourist","BT5"}};
+                for(String[] a : citizenValues){
+                    String cname = a[0];
+                    String email = a[1];
+                    String phno = a[2];
+                    String citizen_id = a[3];
+                    String citizen_type = a[4];
+                    String bank_id = a[5];
+                    r1=s1.executeUpdate("insert into citizen values("+"\""+cname+"\""+","+"\""+email+"\""+","+"\""+phno+"\""+","+"\""+citizen_id+"\""+","+"\""+citizen_type+"\""+","+"\""+bank_id+"\""+")");
+                }
+                System.out.println("inserted succesfully into citizen table");
+                s1.close();
+            } 
+            catch (SQLException e) {
+                // TODO Auto-generated catch block
+                System.out.println("error");
+                System.out.println(e);
+                e.printStackTrace();
             }
-            r1.close();
-            s1.close();
-            conn.close();
+            
         }
-        catch(Exception exception){
-            System.out.println(exception);
+        else if(tableName.equalsIgnoreCase("locations")){
+            try {
+                Statement s1;
+                s1 = conn.createStatement();
+                String[][] locationValues = {{"kanakpura","FORUM Mall","A new, luxury mall with premium brands opening their stores. Shop now","4.5"},
+                                            {"rajajinagar","Sheraton Grand Hotel","This hotel is within the Brigade Gateway complex and is a good choice for a night out","4.3"},
+                                            {"bellandur","Ecospace","This is a highly developed IT tech park","4.6"},
+                                            {"rrnagar","Glen's Bakehouse","This is a cute cake shop","4.4"}};
+                for(String[] a : locationValues){
+                    String address = a[0];
+                    String LName = a[1];
+                    String Descript = a[2];
+                    String review = a[3];
+                    r1=s1.executeUpdate("insert into locations values("+"\""+address+"\""+","+"\""+LName+"\""+","+"\""+Descript+"\""+","+"\""+review+"\""+")");
+                }
+                System.out.println("inserted succesfully into location table");
+                s1.close();
+            } 
+            catch (SQLException e) {
+                // TODO Auto-generated catch block
+                System.out.println(e);
+                e.printStackTrace();
+            }
         }
     }
 }
@@ -28,7 +73,14 @@ class SqlExtract{
 
 public class p1{
     public static void main(String[] args) {
-        SqlExtract sql1 = new SqlExtract();
-        sql1.initiate();
+        ConnectionManager cnm1 = new ConnectionManager();
+        try {
+            cnm1.initiate();
+        } catch (ClassNotFoundException | SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        cnm1.insertInitialValues("citizen");
+        cnm1.insertInitialValues("locations");
     }
 }
