@@ -49,5 +49,7 @@ create table dist(
 sourc varchar(100),
 destination varchar(100),
 rateperkm double,
-ride_type varchar(20)
+ride_type varchar(20),
+distance double
 );
+
