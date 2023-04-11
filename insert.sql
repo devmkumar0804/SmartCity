@@ -51,3 +51,14 @@ insert into dist (sourc,destination,rateperkm,ride_type,distance)
 values("kanakpura","rrnagar",5.0,"auto",24.0);
 
 -- select * from dist
+insert into utils values("water",700.0,50.0,"1");
+insert into utils values("water",600.0,10.0,"2");
+insert into utils values("water",550.0,10.0,"3");
+insert into utils values("water",900.0,20.0,"4");
+insert into utils values("water",200.0,20.0,"5");
+
+insert into utils values("electricity",1000.0,10.0,"1");
+insert into utils values("electricity",1200.0,10.0,"2");
+insert into utils values("electricity",1500.0,0.0,"3");
+insert into utils values("electricity",1200.0,2.0,"4");
+insert into utils values("electricity",900.0,100.0,"5");
