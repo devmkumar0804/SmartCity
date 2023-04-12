@@ -1,5 +1,8 @@
 import java.lang.Thread.State;
 import java.sql.*;
+import java.util.Scanner;
+
+import com.mysql.cj.protocol.Resultset;
 
 class ConnectionManager{
     public Connection conn=null;
@@ -95,12 +98,57 @@ class ConnectionManager{
     }
 }
 
+class Citizen{
+    public Connection connCitizen = null;
+    Statement s1;
+    Resultset r1;
+    public String citizenName;
+    public String citizenID;
+    public String bankID;
+    public String citizenEmail;
+    public String citizenType;
+    public String phno;
+    public void initiate() throws ClassNotFoundException, SQLException{
+        Class.forName("com.mysql.jdbc.Driver"); 
+        connCitizen = DriverManager.getConnection("jdbc:mysql://localhost:3306/smartcity","root","Fllbcksql");
+        s1 = connCitizen.createStatement();
+    }
 
+    public void closer() throws SQLException{
+        connCitizen.close();
+        s1.close();
+    }
+
+    public void login() throws SQLException{
+        Scanner sc1 = new Scanner(System.in);
+        System.out.println("Enter your citizen id");
+        String id = sc1.nextLine();
+        System.out.println("enter your name");
+        String nm = sc1.nextLine();
+        System.out.println("id = "+id+" name = "+nm);
+        ResultSet rciti;
+        rciti = s1.executeQuery("SELECT * FROM citizen where citizen_id="+"\""+id+"\""+" and Cname="+"\""+nm+"\"");
+        if(rciti!=null){
+            citizenName = rciti.getString("CName");
+            citizenEmail = rciti.getString("email");
+            phno = rciti.getString("phno");
+            citizenID = rciti.getString("citizen_id");
+            citizenType = rciti.getString("citizen_type");
+            bankID = rciti.getString("bank_id");
+        }
+        else{
+            System.out.println("no user found, try again");
+            login();
+        }
+    }
+}
 public class p1{
     public static void main(String[] args) {
         ConnectionManager cnm1 = new ConnectionManager();
+        Citizen c1 = new Citizen();
         try {
             cnm1.initiate();
+            c1.login();
         } catch (ClassNotFoundException | SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -108,5 +156,6 @@ public class p1{
         //cnm1.insertInitialValues("citizen");
         //cnm1.insertInitialValues("locations");
         //cnm1.insertInitialValues("bank");
+
     }
 }
