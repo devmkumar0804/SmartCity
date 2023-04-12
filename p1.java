@@ -150,6 +150,17 @@ class Citizen{
             System.out.println("Review : "+rLoc.getFloat("review"));
         }
     }
+
+    public void utilCalc() throws SQLException{
+        ResultSet rUtil;
+        double amt=0;
+        rUtil = s1.executeQuery("SELECT * from utils where citizen_id="+"\""+citizenID+"\"");
+        while(rUtil.next()){
+            amt = amt + rUtil.getDouble("rate")+rUtil.getDouble("overdue");
+            
+        }
+        System.out.println("Your total util bill is = "+amt);
+    }
 }
 public class p1{
     public static void main(String[] args) {
@@ -160,6 +171,7 @@ public class p1{
             c1.initiate();
             c1.login();
             c1.listLocs();
+            c1.utilCalc();
         } catch (ClassNotFoundException | SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
