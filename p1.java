@@ -151,7 +151,7 @@ class Citizen{
         }
     }
 
-    public void utilCalc() throws SQLException{
+    public double utilCalc() throws SQLException{
         ResultSet rUtil;
         double amt=0;
         rUtil = s1.executeQuery("SELECT * from utils where citizen_id="+"\""+citizenID+"\"");
@@ -159,7 +159,33 @@ class Citizen{
             amt = amt + rUtil.getDouble("rate")+rUtil.getDouble("overdue");
             
         }
-        System.out.println("Your total util bill is = "+amt);
+        return amt;
+    }
+
+    public void listBank() throws SQLException{
+        ResultSet rBank;
+        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
+        while(rBank.next()){
+            System.out.println("bank id = "+rBank.getString("bank_id"));
+            System.out.println("bank balance = "+rBank.getDouble("amount"));
+        }
+    }
+
+    public void makePayment() throws SQLException{
+        ResultSet r1;
+        double amt = utilCalc();
+        ResultSet rBank;
+        double newAmt=0;
+        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
+        while(rBank.next()){
+            System.out.println("bank id = "+rBank.getString("bank_id"));
+            System.out.println("bank balance = "+rBank.getDouble("amount"));
+            newAmt = rBank.getDouble("amount");
+        }
+        newAmt=newAmt-amt;
+        int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+citizenID+"\"");
+        System.out.println("payment made, data updated");
+
     }
 }
 public class p1{
@@ -170,8 +196,11 @@ public class p1{
             //cnm1.initiate();
             c1.initiate();
             c1.login();
-            c1.listLocs();
-            c1.utilCalc();
+            //c1.listLocs();
+            //c1.utilCalc();
+            c1.listBank();
+            c1.makePayment();
+            c1.listBank();
         } catch (ClassNotFoundException | SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
