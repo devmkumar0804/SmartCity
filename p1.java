@@ -123,22 +123,31 @@ class Citizen{
         Scanner sc1 = new Scanner(System.in);
         System.out.println("Enter your citizen id");
         String id = sc1.nextLine();
-        System.out.println("enter your name");
-        String nm = sc1.nextLine();
-        System.out.println("id = "+id+" name = "+nm);
+        //System.out.println("id = "+id);
         ResultSet rciti;
-        rciti = s1.executeQuery("SELECT * FROM citizen where citizen_id="+"\""+id+"\""+" and Cname="+"\""+nm+"\"");
-        if(rciti!=null){
-            citizenName = rciti.getString("CName");
-            citizenEmail = rciti.getString("email");
-            phno = rciti.getString("phno");
-            citizenID = rciti.getString("citizen_id");
-            citizenType = rciti.getString("citizen_type");
-            bankID = rciti.getString("bank_id");
-        }
-        else{
-            System.out.println("no user found, try again");
-            login();
+        rciti = s1.executeQuery("SELECT * FROM citizen where citizen_id="+"\""+id+"\"");
+      while(rciti.next()){
+        citizenName = rciti.getString("CName");
+        citizenEmail = rciti.getString("email");
+        phno = rciti.getString("phno");
+        citizenID = rciti.getString("citizen_id");
+        citizenType = rciti.getString("citizen_type");
+        bankID = rciti.getString("bank_id");
+      }
+      System.out.println("Hllo There, "+citizenName);
+    }
+
+    public void listLocs() throws SQLException{
+        ResultSet rLoc;
+        rLoc = s1.executeQuery("Select * from locations");
+        int i=0;
+        while(rLoc.next()){
+            System.out.println("Landmark "+i);
+            i=i+1;
+            System.out.println("City : "+rLoc.getString("address"));
+            System.out.println("Name : "+rLoc.getString("LName"));
+            System.out.println("Brief Description : "+rLoc.getString("Descript"));
+            System.out.println("Review : "+rLoc.getFloat("review"));
         }
     }
 }
@@ -147,8 +156,10 @@ public class p1{
         ConnectionManager cnm1 = new ConnectionManager();
         Citizen c1 = new Citizen();
         try {
-            cnm1.initiate();
+            //cnm1.initiate();
+            c1.initiate();
             c1.login();
+            c1.listLocs();
         } catch (ClassNotFoundException | SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
