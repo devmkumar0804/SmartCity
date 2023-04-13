@@ -6,6 +6,7 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,7 +20,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+import org.w3c.dom.css.RGBColor;
+
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
@@ -153,11 +157,11 @@ class Citizen{
         s1.close();
     }
 
-    public void login() throws SQLException{
+    public Citizen login() throws SQLException{
         Scanner sc1 = new Scanner(System.in);
         System.out.println("Enter your citizen id");
         String id = sc1.nextLine();
-        //System.out.println("id = "+id);
+        System.out.println("id = "+id);
         ResultSet rciti;
         rciti = s1.executeQuery("SELECT * FROM citizen where citizen_id="+"\""+id+"\"");
       while(rciti.next()){
@@ -169,6 +173,7 @@ class Citizen{
         bankID = rciti.getString("bank_id");
       }
       System.out.println("Hello There, "+citizenName);
+      return this;
     }
 
     public ArrayList listLocs() throws SQLException{
@@ -178,7 +183,7 @@ class Citizen{
         int i=0;
         while(rLoc.next()){
             ArrayList a = new ArrayList<>();
-            System.out.println("Landmark "+i);
+            System.out.println("Landmark "+(i+1));
             i=i+1;
             System.out.println("Locality : "+rLoc.getString("address"));
             System.out.println("Name : "+rLoc.getString("LName"));
@@ -193,9 +198,34 @@ class Citizen{
         return final1;
     }
 
+    public ArrayList listDist() throws SQLException{
+        ResultSet rLoc;
+        ArrayList final1 = new ArrayList<>();
+        rLoc = s1.executeQuery("Select * from dist");
+        int i=0;
+        while(rLoc.next()){
+            ArrayList a = new ArrayList<>();
+            System.out.println("Option "+(i+1));
+            i=i+1;
+            System.out.println("Source : "+rLoc.getString("sourc"));
+            System.out.println("Destination : "+rLoc.getString("destination"));
+            System.out.println("rate per kilometer : "+rLoc.getDouble("rateperkm"));
+            System.out.println("Ride Type : "+rLoc.getString("ride_type"));
+            System.out.println("Distance : "+rLoc.getDouble("distance"));
+            a.add(rLoc.getString("sourc"));
+            a.add(rLoc.getString("destination"));
+            a.add(rLoc.getString("rateperkm"));
+            a.add(rLoc.getString("ride_type"));
+            a.add(rLoc.getString("distance"));
+            final1.add(a);
+        }
+        return final1;
+    }
+
     public double utilCalc() throws SQLException{
         ResultSet rUtil;
         double amt=0;
+        
         rUtil = s1.executeQuery("SELECT * from utils where citizen_id="+"\""+citizenID+"\"");
         while(rUtil.next()){
             amt = amt + rUtil.getDouble("rate")+rUtil.getDouble("overdue");
@@ -204,13 +234,17 @@ class Citizen{
         return amt;
     }
 
-    public void listBank() throws SQLException{
+    public ArrayList listBank() throws SQLException{
         ResultSet rBank;
+        ArrayList final1 = new ArrayList<>();
         rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
         while(rBank.next()){
             System.out.println("bank id = "+rBank.getString("bank_id"));
             System.out.println("bank balance = "+rBank.getDouble("amount"));
+            final1.add(rBank.getString("bank_id"));
+            final1.add(rBank.getString("amount"));
         }
+        return final1;
     }
 
     public void makePayment() throws SQLException{
@@ -231,13 +265,37 @@ class Citizen{
     }
 }
 
+class ImagePanel extends JComponent{
+    private Image image;
+    public ImagePanel(Image image){
+        this.image=image;
+    }
+    @Override
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+        g.drawImage(image, 0, 0, this);
+    }
+}
 
 class CitizenView{
     public void mainFrame(Citizen c1) throws IOException{
+        
+
         JFrame frame1 = new JFrame("Smart City Manager");
+        ImageIcon img = new ImageIcon("C:\\Users\\gauta\\SmartCity\\background.jpg");
+        frame1.setIconImage(img.getImage());
         frame1.setSize(1000, 1000);
-        frame1.setLayout(new GridLayout(10, 1));
+        frame1.setLayout(new GridLayout(10, 1,0,20));
         frame1.setResizable(true);
+        JLabel background = new JLabel(new ImageIcon("./background.jpg"));
+        frame1.add(background);
+        frame1.setBackground(new Color(5, 10, 15));
+        frame1.setSize(1000, 1000);
+
+
+
+
+
         JLabel headingLabel = new JLabel("Hello There, "+c1.citizenName,0);
         //headingLabel.setBounds(150, 20, 200, 20);
         // headingLabel.setAlignmentX(0.5f);
@@ -254,20 +312,23 @@ class CitizenView{
         JButton b4 = new JButton("Book A Ride");
         JButton b5 = new JButton("Make A Payment");
         JButton b6 = new JButton("List Your Utility Dues");
-        m1.add(b1, 0);
-        m1.add(b2, 1);
-        m1.add(b3, 2);
-        m1.add(b4, 3);
-        m1.add(b5, 4);
-        m1.add(b6, 5);
+        JPanel buttonPanel = new JPanel(new GridLayout(3, 2));
+        buttonPanel.add(b1);
+        buttonPanel.add(b2);
+        buttonPanel.add(b3);
+        buttonPanel.add(b4);
+        buttonPanel.add(b5);
+        buttonPanel.add(b6);
+        JTabbedPane tResult = new JTabbedPane();
         //m1.setLayout(new GridLayout(3, 2));
         //locs.setBounds(100, 70, 100, 20);
         b1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    tResult.removeAll();
                     ArrayList locs1 = c1.listLocs();
-                    JTabbedPane t1 = new JTabbedPane();
+                    
                     //t1.setBounds(50, 150, 400, 300);
                     for(int i=0;i<locs1.size();i++){
                         ArrayList a = (ArrayList) locs1.get(i);
@@ -284,29 +345,96 @@ class CitizenView{
                         p1.add(s2);
                         p1.add(s3);
                         p1.add(s4);
-                        t1.add("location "+(i+1),p1);
+                        tResult.add("location "+(i+1),p1);
 
                     }
-                    frame1.add(t1);
+                    frame1.add(tResult);
                 } catch (SQLException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
             }
         });
-        frame1.add(b1);
-        frame1.add(b2);
-        frame1.add(b3);
-        frame1.add(b4);
-        frame1.add(b5);
-        frame1.add(b6);
+
+        b2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    tResult.removeAll();
+                    ArrayList locs1 = c1.listDist();
+                    //t1.setBounds(50, 150, 400, 300);
+                    for(int i=0;i<locs1.size();i++){
+                        ArrayList a = (ArrayList) locs1.get(i);
+                        JPanel p1 = new JPanel();
+                        JLabel s1 = new JLabel("Source : "+a.get(0));
+                        JLabel s2 = new JLabel("Destination : "+a.get(1));
+                        JLabel s3 = new JLabel("Fare : "+a.get(2));
+                        JLabel s4 = new JLabel("Ride Type : "+a.get(3));
+                        JLabel s5 = new JLabel("Distance : "+a.get(4));
+                        String f = s1+"\n"+s2+"\n"+s3+"\n"+s4+"\n";
+                        JTextField tf1 = new JTextField(f);
+                        p1.setLayout(new GridLayout(4, 1));
+                        tf1.setSize(600,500);
+                        p1.add(s1);
+                        p1.add(s2);
+                        p1.add(s3);
+                        p1.add(s4);
+                        p1.add(s5);
+                        tResult.add("location "+(i+1),p1);
+
+                    }
+                    frame1.add(tResult);
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        });
+
+
+        b3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    tResult.removeAll();
+                    ArrayList locs1 = c1.listBank();
+                    //t1.setBounds(50, 150, 400, 300);
+                    for(int i=0;i<locs1.size();i++){
+                    
+                        JPanel p1 = new JPanel();
+                        JLabel s1 = new JLabel("Bank ID : "+locs1.get(0));
+                        JLabel s2 = new JLabel("Balance : "+locs1.get(1));
+
+                        p1.setLayout(new GridLayout(4, 1));
+                        p1.add(s1);
+                        p1.add(s2);
+                        tResult.add("Your Balance "+(i+1),p1);
+
+                    }
+                    frame1.add(tResult);
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        });
+        // frame1.add(b1);
+        // frame1.add(b2);
+        // frame1.add(b3);
+        // frame1.add(b4);
+        // frame1.add(b5);
+        // frame1.add(b6);
+        frame1.add(buttonPanel);
         frame1.setVisible(true);
+
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+
+    
 }
 
 public class p1{
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ConnectionManager cnm1 = new ConnectionManager();
         Citizen c1 = new Citizen();
         CitizenView cv = new CitizenView();
@@ -319,8 +447,9 @@ public class p1{
             //c1.listBank();
             //c1.makePayment();
             //c1.listBank();
+            //c1 = cv.loginFrame();
             cv.mainFrame(c1);
-        } catch (ClassNotFoundException | SQLException | IOException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
