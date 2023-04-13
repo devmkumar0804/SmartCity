@@ -1,6 +1,40 @@
 import java.lang.Thread.State;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Transparency;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
+import java.io.File;
+import java.io.IOException;
 
 import com.mysql.cj.protocol.Resultset;
 
@@ -134,21 +168,29 @@ class Citizen{
         citizenType = rciti.getString("citizen_type");
         bankID = rciti.getString("bank_id");
       }
-      System.out.println("Hllo There, "+citizenName);
+      System.out.println("Hello There, "+citizenName);
     }
 
-    public void listLocs() throws SQLException{
+    public ArrayList listLocs() throws SQLException{
         ResultSet rLoc;
+        ArrayList final1 = new ArrayList<>();
         rLoc = s1.executeQuery("Select * from locations");
         int i=0;
         while(rLoc.next()){
+            ArrayList a = new ArrayList<>();
             System.out.println("Landmark "+i);
             i=i+1;
-            System.out.println("City : "+rLoc.getString("address"));
+            System.out.println("Locality : "+rLoc.getString("address"));
             System.out.println("Name : "+rLoc.getString("LName"));
             System.out.println("Brief Description : "+rLoc.getString("Descript"));
             System.out.println("Review : "+rLoc.getFloat("review"));
+            a.add(rLoc.getString("address"));
+            a.add(rLoc.getString("LName"));
+            a.add(rLoc.getString("Descript"));
+            a.add(rLoc.getString("review"));
+            final1.add(a);
         }
+        return final1;
     }
 
     public double utilCalc() throws SQLException{
@@ -188,20 +230,97 @@ class Citizen{
 
     }
 }
+
+
+class CitizenView{
+    public void mainFrame(Citizen c1) throws IOException{
+        JFrame frame1 = new JFrame("Smart City Manager");
+        frame1.setSize(1000, 1000);
+        frame1.setLayout(new GridLayout(10, 1));
+        frame1.setResizable(true);
+        JLabel headingLabel = new JLabel("Hello There, "+c1.citizenName,0);
+        //headingLabel.setBounds(150, 20, 200, 20);
+        // headingLabel.setAlignmentX(0.5f);
+        // headingLabel.setAlignmentY(0.5f);
+        frame1.add(headingLabel);
+        JLabel l1 = new JLabel("Welcome to the Smart City Manager",0);
+        //l1.setBounds(100, 40, 300, 20);
+        frame1.add(l1);
+        JMenu m1 = new JMenu("Available Options", true);
+
+        JButton b1 = new JButton("List Locations");
+        JButton  b2 = new JButton("List Available Transports");
+        JButton b3 = new JButton("List Your Bank Details");
+        JButton b4 = new JButton("Book A Ride");
+        JButton b5 = new JButton("Make A Payment");
+        JButton b6 = new JButton("List Your Utility Dues");
+        m1.add(b1, 0);
+        m1.add(b2, 1);
+        m1.add(b3, 2);
+        m1.add(b4, 3);
+        m1.add(b5, 4);
+        m1.add(b6, 5);
+        //m1.setLayout(new GridLayout(3, 2));
+        //locs.setBounds(100, 70, 100, 20);
+        b1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ArrayList locs1 = c1.listLocs();
+                    JTabbedPane t1 = new JTabbedPane();
+                    //t1.setBounds(50, 150, 400, 300);
+                    for(int i=0;i<locs1.size();i++){
+                        ArrayList a = (ArrayList) locs1.get(i);
+                        JPanel p1 = new JPanel();
+                        JLabel s1 = new JLabel("locality : "+a.get(0));
+                        JLabel s2 = new JLabel("Name : "+a.get(1));
+                        JLabel s3 = new JLabel("brief description : "+a.get(2));
+                        JLabel s4 = new JLabel("review : "+a.get(3));
+                        String f = s1+"\n"+s2+"\n"+s3+"\n"+s4+"\n";
+                        JTextField tf1 = new JTextField(f);
+                        p1.setLayout(new GridLayout(4, 1));
+                        tf1.setSize(600,300);
+                        p1.add(s1);
+                        p1.add(s2);
+                        p1.add(s3);
+                        p1.add(s4);
+                        t1.add("location "+(i+1),p1);
+
+                    }
+                    frame1.add(t1);
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        });
+        frame1.add(b1);
+        frame1.add(b2);
+        frame1.add(b3);
+        frame1.add(b4);
+        frame1.add(b5);
+        frame1.add(b6);
+        frame1.setVisible(true);
+        frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+}
+
 public class p1{
     public static void main(String[] args) {
         ConnectionManager cnm1 = new ConnectionManager();
         Citizen c1 = new Citizen();
+        CitizenView cv = new CitizenView();
         try {
             //cnm1.initiate();
             c1.initiate();
             c1.login();
             //c1.listLocs();
             //c1.utilCalc();
-            c1.listBank();
-            c1.makePayment();
-            c1.listBank();
-        } catch (ClassNotFoundException | SQLException e) {
+            //c1.listBank();
+            //c1.makePayment();
+            //c1.listBank();
+            cv.mainFrame(c1);
+        } catch (ClassNotFoundException | SQLException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
