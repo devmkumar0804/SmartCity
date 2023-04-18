@@ -143,6 +143,7 @@ class Citizen{
     public Connection connCitizen = null;
     Statement s1;
     Resultset r1;
+    public int rideId=0;
     public String citizenName;
     public String citizenID;
     public String bankID;
@@ -267,24 +268,34 @@ class Citizen{
 
     }
 
-    public void makePaymentRide(String src,String dest) throws SQLException{
+    public void makePaymentRide(String src,String dest,String rideType) throws SQLException{
         ResultSet r1;
         double rpkm;
         double dist;
         double amt=0;
         ResultSet rBank;
         double newAmt=0;
+        
+        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
+        while(rBank.next()){
+            System.out.println("bank id = "+rBank.getString("bank_id"));
+            System.out.println("bank balance = "+rBank.getDouble("amount"));
+            newAmt = rBank.getDouble("amount");
+        }
         rBank = s1.executeQuery("select * from dist where sourc="+"\""+src+"\""+" and destination="+"\""+dest+"\"");
         while(rBank.next()){
             System.out.println("Fare = "+rBank.getString("rateperkm"));
             System.out.println("Distance = "+rBank.getDouble("distance"));
             rpkm = rBank.getDouble("rateperkm");
             dist = rBank.getDouble("distance");
+            
             amt=rpkm*dist;
+            System.out.println(amt);
         }
         newAmt=newAmt-amt;
         int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+citizenID+"\"");
         System.out.println("payment made, data updated");
+        r = s1.executeUpdate("insert into transport values("+"\""+rideId+"\""+","+"\""+rideType+"\""+","+"True"+","+amt+","+"\""+src+"\""+","+"\""+dest+"\""+","+"\""+citizenID+"\""+")");
 
     }
 }
@@ -437,24 +448,28 @@ class CitizenView{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String s1,s2;
+                    String s1,s2,s4;
                     tResult.removeAll();
                     ArrayList locs1 = c1.listDist();
-                    ArrayList<String> locs2 = new ArrayList<String>();
+                    String[] locs2=new String[24];
                     //t1.setBounds(50, 150, 400, 300);
                     for(int i=0;i<locs1.size();i++){
                         ArrayList a = (ArrayList) locs1.get(i);
                         //JPanel p1 = new JPanel();
                         s1 = (String) a.get(0);
                         s2 = (String) a.get(1);
-                        String s3 = s1+" to "+s2;
-                        locs2.add(s3);
+                        s4 = (String) a.get(3);
+                        String s3 = s1+" to "+s2+" and ride type = "+s4;
+                        locs2[i]=s3;
                     }
-                    JComboBox jcBox = new JComboBox<String>((ComboBoxModel<String>) locs2);
+                    for(String x : locs2){
+                        System.out.println(x);
+                    }
+                    JComboBox jcBox = new JComboBox(locs2);
                     JLabel newChoice = new JLabel("Enter choice of location");
                     JButton choiceButton = new JButton("CHOOSE");
                     JPanel p1 = new JPanel(new GridLayout(4, 1, 0, 0));
-                    //p1.add(jcBox);
+                    p1.add(jcBox);
                     p1.add(newChoice);
                     p1.add(choiceButton);
                     tResult.add("SELECTION",p1);
@@ -467,7 +482,7 @@ class CitizenView{
                             String s3 = (String) jcBox.getSelectedItem();
                             String[] params = s3.split(" ");
                             try {
-                                c1.makePaymentRide(params[0], params[2]);
+                                c1.makePaymentRide(params[0], params[2],params[7]);
                             } catch (SQLException e1) {
                                 // TODO Auto-generated catch block
                                 e1.printStackTrace();
@@ -502,7 +517,8 @@ class CitizenView{
                         p1.setLayout(new GridLayout(4, 1));
                         p1.add(s1);
                         p1.add(s2);
-                        tResult.add("Your Balance "+(i+1),p1);
+                        tResult.add("Your Balance ",p1);
+                        break;
 
                     }
                     frame1.add(tResult,BorderLayout.PAGE_END);
