@@ -5,8 +5,10 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -420,8 +422,6 @@ class CitizenView{
                         p1.add(s4);
                         p1.add(s5);
                         tResult.add("Ride  "+(i+1),p1);
-                        
-
                     }
                     //frame1.add(tResult,BorderLayout.PAGE_END);
                     frame1.add(tResult,BorderLayout.PAGE_END);
@@ -437,21 +437,46 @@ class CitizenView{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    String s1,s2;
                     tResult.removeAll();
-                    ArrayList locs1 = c1.listBank();
+                    ArrayList locs1 = c1.listDist();
+                    ArrayList<String> locs2 = new ArrayList<String>();
                     //t1.setBounds(50, 150, 400, 300);
                     for(int i=0;i<locs1.size();i++){
-                    
-                        JPanel p1 = new JPanel();
-                        JLabel s1 = new JLabel("Bank ID : "+locs1.get(0));
-                        JLabel s2 = new JLabel("Balance : "+locs1.get(1));
-
-                        p1.setLayout(new GridLayout(4, 1));
-                        p1.add(s1);
-                        p1.add(s2);
-                        tResult.add("Your Balance "+(i+1),p1);
-
+                        ArrayList a = (ArrayList) locs1.get(i);
+                        //JPanel p1 = new JPanel();
+                        s1 = (String) a.get(0);
+                        s2 = (String) a.get(1);
+                        String s3 = s1+" to "+s2;
+                        locs2.add(s3);
                     }
+                    JComboBox jcBox = new JComboBox<String>((ComboBoxModel<String>) locs2);
+                    JLabel newChoice = new JLabel("Enter choice of location");
+                    JButton choiceButton = new JButton("CHOOSE");
+                    JPanel p1 = new JPanel(new GridLayout(4, 1, 0, 0));
+                    //p1.add(jcBox);
+                    p1.add(newChoice);
+                    p1.add(choiceButton);
+                    tResult.add("SELECTION",p1);
+                    frame1.add(tResult,BorderLayout.PAGE_END);
+                    choiceButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e){
+
+                            tResult.removeAll();
+                            String s3 = (String) jcBox.getSelectedItem();
+                            String[] params = s3.split(" ");
+                            try {
+                                c1.makePaymentRide(params[0], params[2]);
+                            } catch (SQLException e1) {
+                                // TODO Auto-generated catch block
+                                e1.printStackTrace();
+                            }
+                            JLabel l7 = new JLabel("Ride Booked");
+                            p1.add(l7);
+                            tResult.add(p1);
+                        }
+                    });
                     frame1.add(tResult,BorderLayout.PAGE_END);
                 } catch (SQLException e1) {
                     // TODO Auto-generated catch block
