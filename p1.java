@@ -446,7 +446,7 @@ class CitizenView{
 
 
         JPanel headingPanel = new JPanel(new BorderLayout(20, 30));
-        JLabel headingLabel = new JLabel("Hello There, "+c1.citizenName,0);
+        JLabel headingLabel = new JLabel("Hello There, "+c1.getCitizenName(),0);
         //headingLabel.setBounds(150, 20, 200, 20);
         // headingLabel.setAlignmentX(0.5f);
         // headingLabel.setAlignmentY(0.5f);
