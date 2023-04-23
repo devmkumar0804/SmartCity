@@ -1,5 +1,6 @@
 import java.lang.Thread.State;
 import java.sql.*;
+import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -28,6 +29,8 @@ import org.w3c.dom.css.RGBColor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -35,10 +38,14 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
@@ -150,6 +157,22 @@ class Citizen{
     public String citizenEmail;
     public String citizenType;
     public String phno;
+
+    // public Citizen() throws SQLException{
+    //     ResultSet r2;
+    //     r2 = s1.executeQuery("select * from transport");
+    //     int max = 0;
+    //     while(r2.next()){
+    //         String a = r2.getString("ride_id");
+    //         int x = Integer.parseInt(a);
+    //         if(x>=max){
+    //             max=x;
+    //         }
+    //     }
+    //     max=max+1;
+    //     this.rideId=max;
+    // }
+
     public void initiate() throws ClassNotFoundException, SQLException{
         Class.forName("com.mysql.jdbc.Driver"); 
         connCitizen = DriverManager.getConnection("jdbc:mysql://localhost:3306/smartcity","root","Fllbcksql");
@@ -226,6 +249,32 @@ class Citizen{
         return final1;
     }
 
+    public ArrayList listRides() throws SQLException{
+        ResultSet rLoc;
+        ArrayList final1 = new ArrayList<>();
+        rLoc = s1.executeQuery("Select * from transport where citizen_id="+"\""+citizenID+"\"");
+        int i=0;
+        while(rLoc.next()){
+            ArrayList a = new ArrayList<>();
+            System.out.println("Option "+(i+1));
+            i=i+1;
+            System.out.println("Ride number : "+rLoc.getString("ride_id"));
+            System.out.println("Ride type : "+rLoc.getString("ride_type"));
+            System.out.println("Availability : "+rLoc.getBoolean("Availability"));
+            System.out.println("Total Fare : "+rLoc.getDouble("fare"));
+            System.out.println("Pickup point : "+rLoc.getString("sourc"));
+            System.out.println("Drop location : "+rLoc.getString("dest"));
+            a.add(rLoc.getString("ride_id"));
+            a.add(rLoc.getString("ride_type"));
+            a.add(rLoc.getBoolean("Availability"));
+            a.add(rLoc.getDouble("fare"));
+            a.add(rLoc.getString("sourc"));
+            a.add(rLoc.getString("dest"));
+            final1.add(a);
+        }
+        return final1;
+    }
+
     public double utilCalc() throws SQLException{
         ResultSet rUtil;
         double amt=0;
@@ -264,6 +313,7 @@ class Citizen{
         }
         newAmt=newAmt-amt;
         int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+citizenID+"\"");
+        r = s1.executeUpdate("update utils set rate=0 and overdue=0 where citizen_id="+"\""+citizenID+"\"");
         System.out.println("payment made, data updated");
 
     }
@@ -296,6 +346,7 @@ class Citizen{
         int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+citizenID+"\"");
         System.out.println("payment made, data updated");
         r = s1.executeUpdate("insert into transport values("+"\""+rideId+"\""+","+"\""+rideType+"\""+","+"True"+","+amt+","+"\""+src+"\""+","+"\""+dest+"\""+","+"\""+citizenID+"\""+")");
+        rideId=rideId+1;
 
     }
 }
@@ -317,16 +368,20 @@ class CitizenView{
         
 
         JFrame frame1 = new JFrame("Smart City Manager");
-        ImageIcon img = new ImageIcon("C:\\Users\\gauta\\SmartCity\\background.jpg");
-        frame1.setIconImage(img.getImage());
+        //Image img = new ImageIcon("C:\\Users\\gauta\\SmartCity\\background.jpg");
+        //frame1.setIconImage(img.getImage());
+        
         frame1.setSize(1000, 1000);
         frame1.setLayout(new BorderLayout(20, 30));
+        
         frame1.setResizable(true);
         JLabel background = new JLabel(new ImageIcon("./background.jpg"));
         frame1.add(background);
         frame1.setBackground(new Color(5, 10, 15));
         frame1.setSize(1000, 1000);
 
+        Image img = Toolkit.getDefaultToolkit().getImage("./background.jpg");
+        frame1.setBackground(new Color(50, 50, 50));
 
 
 
@@ -350,6 +405,7 @@ class CitizenView{
         JButton b4 = new JButton("Book A Ride");
         JButton b5 = new JButton("Make A Payment");
         JButton b6 = new JButton("List Your Utility Dues");
+        JButton b7 = new JButton("List your booked rides");
         JPanel buttonPanel = new JPanel();
        //buttonPanel.setBounds(300,  300, 500, 500);
         buttonPanel.add(b1);
@@ -358,6 +414,7 @@ class CitizenView{
         buttonPanel.add(b4);
         buttonPanel.add(b5);
         buttonPanel.add(b6);
+        buttonPanel.add(b7);
         // b1.setBounds(50, 200, 50, 20);
         // b1.setBounds(110, 200, 50, 20);
         // b1.setBounds(170, 200, 50, 20);
@@ -420,7 +477,7 @@ class CitizenView{
                         JPanel p1 = new JPanel();
                         JLabel s1 = new JLabel("Source : "+a.get(0));
                         JLabel s2 = new JLabel("Destination : "+a.get(1));
-                        JLabel s3 = new JLabel("Fare : "+a.get(2));
+                        JLabel s3 = new JLabel("Fare per km : "+a.get(2));
                         JLabel s4 = new JLabel("Ride Type : "+a.get(3));
                         JLabel s5 = new JLabel("Distance : "+a.get(4));
                         String f = s1+"\n"+s2+"\n"+s3+"\n"+s4+"\n";
@@ -433,6 +490,44 @@ class CitizenView{
                         p1.add(s4);
                         p1.add(s5);
                         tResult.add("Ride  "+(i+1),p1);
+                    }
+                    //frame1.add(tResult,BorderLayout.PAGE_END);
+                    frame1.add(tResult,BorderLayout.PAGE_END);
+                    
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+        });
+
+        b7.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    tResult.removeAll();
+                    ArrayList locs1 = c1.listRides();
+                    //t1.setBounds(50, 150, 400, 300);
+                    for(int i=0;i<locs1.size();i++){
+                        ArrayList a = (ArrayList) locs1.get(i);
+                        JPanel p1 = new JPanel();
+                        JLabel s1 = new JLabel("Ride Number : "+a.get(0));
+                        JLabel s2 = new JLabel("Ride Type : "+a.get(1));
+                        JLabel s3 = new JLabel("Availability : "+a.get(2));
+                        JLabel s4 = new JLabel("Total Fare : "+a.get(3));
+                        JLabel s5 = new JLabel("Pickup Point : "+a.get(4));
+                        JLabel s6 = new JLabel("Drop location : "+a.get(5));
+                        String f = s1+"\n"+s2+"\n"+s3+"\n"+s4+"\n";
+                        JTextField tf1 = new JTextField(f);
+                        p1.setLayout(new GridLayout(6, 1));
+                        tf1.setSize(600,500);
+                        p1.add(s1);
+                        p1.add(s2);
+                        p1.add(s3);
+                        p1.add(s4);
+                        p1.add(s5);
+                        p1.add(s6);
+                        tResult.add("Ride Number  "+(i+1),p1);
                     }
                     //frame1.add(tResult,BorderLayout.PAGE_END);
                     frame1.add(tResult,BorderLayout.PAGE_END);
@@ -585,7 +680,7 @@ class CitizenView{
 }
 
 public class p1{
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
         ConnectionManager cnm1 = new ConnectionManager();
         Citizen c1 = new Citizen();
         CitizenView cv = new CitizenView();
