@@ -262,6 +262,11 @@ class Citizen{
       System.out.println("Hello There, "+citizenName);
       return this;
     }
+    JFrame login1 = new JFrame("login");
+
+    public boolean checkframe(){
+        return login1.isVisible();
+    }
 
     public ArrayList listLocs() throws SQLException{
         ResultSet rLoc;
@@ -429,8 +434,10 @@ class CitizenView{
 
         JFrame frame1 = new JFrame("Smart City Manager");
         //Image img = new ImageIcon("C:\\Users\\gauta\\SmartCity\\background.jpg");
-        //frame1.setIconImage(img.getImage());
-        
+        //frame1.setIconImage(img.getImage())
+
+
+        frame1.pack();
         frame1.setSize(1000, 1000);
         frame1.setLayout(new BorderLayout(20, 30));
         
@@ -731,7 +738,8 @@ class CitizenView{
         frame1.add(headingPanel,BorderLayout.PAGE_START);
         buttonPanel.setVisible(true);
         frame1.add(buttonPanel,BorderLayout.CENTER);
-        frame1.setVisible(true);
+        if(c1.checkframe()==true){frame1.setVisible(false);}
+        else{frame1.setVisible(true);}
 
         frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
