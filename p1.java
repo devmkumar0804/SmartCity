@@ -158,20 +158,73 @@ class Citizen{
     public String citizenType;
     public String phno;
 
-    // public Citizen() throws SQLException{
-    //     ResultSet r2;
-    //     r2 = s1.executeQuery("select * from transport");
-    //     int max = 0;
-    //     while(r2.next()){
-    //         String a = r2.getString("ride_id");
-    //         int x = Integer.parseInt(a);
-    //         if(x>=max){
-    //             max=x;
-    //         }
-    //     }
-    //     max=max+1;
-    //     this.rideId=max;
-    // }
+    public int getRideId() throws SQLException {
+        ResultSet r2;
+        r2 = s1.executeQuery("select * from transport");
+        int max = 0;
+        while(r2.next()){
+            //String a = r2.getString("ride_id");
+            int a = r2.getInt("ride_id");
+            if(a>=max){
+                max=a;
+            }
+        }
+        max=max+1;
+        this.rideId=max;
+        return rideId;
+    }
+
+    public void setRideId(int rideId) {
+        this.rideId = rideId;
+    }
+
+    public String getCitizenName() {
+        return citizenName;
+    }
+
+    public void setCitizenName(String citizenName) {
+        this.citizenName = citizenName;
+    }
+
+    public String getCitizenID() {
+        return citizenID;
+    }
+
+    public void setCitizenID(String citizenID) {
+        this.citizenID = citizenID;
+    }
+
+    public String getBankID() {
+        return bankID;
+    }
+
+    public void setBankID(String bankID) {
+        this.bankID = bankID;
+    }
+
+    public String getCitizenEmail() {
+        return citizenEmail;
+    }
+
+    public void setCitizenEmail(String citizenEmail) {
+        this.citizenEmail = citizenEmail;
+    }
+
+    public String getCitizenType() {
+        return citizenType;
+    }
+
+    public void setCitizenType(String citizenType) {
+        this.citizenType = citizenType;
+    }
+
+    public String getPhno() {
+        return phno;
+    }
+
+    public void setPhno(String phno) {
+        this.phno = phno;
+    }
 
     public void initiate() throws ClassNotFoundException, SQLException{
         Class.forName("com.mysql.jdbc.Driver"); 
@@ -192,12 +245,19 @@ class Citizen{
         ResultSet rciti;
         rciti = s1.executeQuery("SELECT * FROM citizen where citizen_id="+"\""+id+"\"");
       while(rciti.next()){
-        citizenName = rciti.getString("CName");
-        citizenEmail = rciti.getString("email");
-        phno = rciti.getString("phno");
-        citizenID = rciti.getString("citizen_id");
-        citizenType = rciti.getString("citizen_type");
-        bankID = rciti.getString("bank_id");
+        // citizenName = rciti.getString("CName");
+        // citizenEmail = rciti.getString("email");
+        // phno = rciti.getString("phno");
+        // citizenID = rciti.getString("citizen_id");
+        // citizenType = rciti.getString("citizen_type");
+        // bankID = rciti.getString("bank_id");
+        setCitizenName(rciti.getString("CName"));
+        setCitizenEmail(rciti.getString("email"));
+        setCitizenID(rciti.getString("citizen_id"));
+        setCitizenType(rciti.getString("citizen_type"));
+        setPhno(rciti.getString("phno"));
+        setBankID(rciti.getString("bank_id"));
+
       }
       System.out.println("Hello There, "+citizenName);
       return this;
@@ -252,7 +312,7 @@ class Citizen{
     public ArrayList listRides() throws SQLException{
         ResultSet rLoc;
         ArrayList final1 = new ArrayList<>();
-        rLoc = s1.executeQuery("Select * from transport where citizen_id="+"\""+citizenID+"\"");
+        rLoc = s1.executeQuery("Select * from transport where citizen_id="+"\""+this.getCitizenID()+"\"");
         int i=0;
         while(rLoc.next()){
             ArrayList a = new ArrayList<>();
@@ -279,7 +339,7 @@ class Citizen{
         ResultSet rUtil;
         double amt=0;
         
-        rUtil = s1.executeQuery("SELECT * from utils where citizen_id="+"\""+citizenID+"\"");
+        rUtil = s1.executeQuery("SELECT * from utils where citizen_id="+"\""+this.getCitizenID()+"\"");
         while(rUtil.next()){
             amt = amt + rUtil.getDouble("rate")+rUtil.getDouble("overdue");
             
@@ -290,7 +350,7 @@ class Citizen{
     public ArrayList listBank() throws SQLException{
         ResultSet rBank;
         ArrayList final1 = new ArrayList<>();
-        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
+        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+this.getCitizenID()+"\"");
         while(rBank.next()){
             System.out.println("bank id = "+rBank.getString("bank_id"));
             System.out.println("bank balance = "+rBank.getDouble("amount"));
@@ -305,15 +365,15 @@ class Citizen{
         double amt = utilCalc();
         ResultSet rBank;
         double newAmt=0;
-        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
+        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+this.getCitizenID()+"\"");
         while(rBank.next()){
             System.out.println("bank id = "+rBank.getString("bank_id"));
             System.out.println("bank balance = "+rBank.getDouble("amount"));
             newAmt = rBank.getDouble("amount");
         }
         newAmt=newAmt-amt;
-        int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+citizenID+"\"");
-        r = s1.executeUpdate("update utils set rate=0 and overdue=0 where citizen_id="+"\""+citizenID+"\"");
+        int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+this.getCitizenID()+"\"");
+        r = s1.executeUpdate("update utils set rate=0 and overdue=0 where citizen_id="+"\""+this.getCitizenID()+"\"");
         System.out.println("payment made, data updated");
 
     }
@@ -326,7 +386,7 @@ class Citizen{
         ResultSet rBank;
         double newAmt=0;
         
-        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+citizenID+"\"");
+        rBank = s1.executeQuery("select * from bank where citizen_id="+"\""+this.getCitizenID()+"\"");
         while(rBank.next()){
             System.out.println("bank id = "+rBank.getString("bank_id"));
             System.out.println("bank balance = "+rBank.getDouble("amount"));
@@ -343,9 +403,9 @@ class Citizen{
             System.out.println(amt);
         }
         newAmt=newAmt-amt;
-        int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+citizenID+"\"");
+        int r = s1.executeUpdate("update bank set amount="+newAmt+" where citizen_id="+"\""+this.getCitizenID()+"\"");
         System.out.println("payment made, data updated");
-        r = s1.executeUpdate("insert into transport values("+"\""+rideId+"\""+","+"\""+rideType+"\""+","+"True"+","+amt+","+"\""+src+"\""+","+"\""+dest+"\""+","+"\""+citizenID+"\""+")");
+        r = s1.executeUpdate("insert into transport values("+"\""+this.getRideId()+"\""+","+"\""+rideType+"\""+","+"True"+","+amt+","+"\""+src+"\""+","+"\""+dest+"\""+","+"\""+citizenID+"\""+")");
         rideId=rideId+1;
 
     }
