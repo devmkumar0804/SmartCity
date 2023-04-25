@@ -9,5 +9,7 @@
 - Smart city database management system built using JAVA
 - JDBC connectivity with MySQL for the backend
 - JAVA - SWING for a basic GUI
+- Exported project as JAR file to be run in cmd
+- Only base citizen fns, no admin fns.
 
 
